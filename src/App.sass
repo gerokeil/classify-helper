@@ -3,30 +3,23 @@ body
     height: calc(100vh - 20px)
     margin: 0
     padding: 0
+    background-color: #FAF9F8
 
 body .ms-Card
     background-color: #ffffff
+    width: calc(100%)
+    height: calc(100%)
+    max-width: none
+    padding: 10px
 
 #root
     padding: 10px
     height: inherit
-    & > .ms-Grid
+    & > div
         height: inherit
+        & > div
+            height: inherit
 
 .app-container
     display: flex
     height: inherit
-
-.nav-container
-    border: 1px solid #C8C6C4
-    height: inherit
-
-.content-container
-    background-color: #FAF9F8
-    display: inline
-
-    & > .ms-Card
-        width: 100%
-        height: calc(100%)
-        max-width: none
-        
