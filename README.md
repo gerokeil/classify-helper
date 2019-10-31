@@ -21,9 +21,11 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 #### [Akita](https://github.com/datorama/akita)
   For state management and reactive updates to the entire application.
 
-### [Office UI Fabric for React](https://github.com/OfficeDev/office-ui-fabric-react)
+#### [Office UI Fabric for React](https://github.com/OfficeDev/office-ui-fabric-react)
   For that good looking UI interface.
 
-IMPORTANT: 
-1. Use a CORS enable everywhere extension in the browser you are using.
+
+
+###### IMPORTANT: 
+1. Use a CORS enable everywhere extension in the browser you are using or the API calls will fail.
 2. Add the Colabel API Authentication token into [this](https://github.com/mlnj/classify-helper/blob/master/src/common.ts) replacing  `<<TOKEN TOKEN TOKEN>>`.
