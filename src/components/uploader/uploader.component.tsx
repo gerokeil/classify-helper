@@ -1,26 +1,26 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Container, Row, Col } from '@trendmicro/react-grid-system';
 // eslint-disable-next-line no-unused-vars
-import { TextField, Label, ChoiceGroup, IChoiceGroupOption, CompoundButton, Stack, DocumentCard, ImageFit, DocumentCardImage, DocumentCardLocation, DocumentCardActivity } from 'office-ui-fabric-react';
+import { TextField, Label, ChoiceGroup, IChoiceGroupOption, CompoundButton, Stack, DocumentCard, ImageFit, DocumentCardImage, DocumentCardLocation, DocumentCardActivity, ProgressIndicator, TeachingBubble, DirectionalHint } from 'office-ui-fabric-react';
 import { PageHeader } from '../shared/page-header.component';
-import { useUploadingFilesFacade } from '../../store/ui/ui.facade';
 import { ExtractHostname } from '../../common';
+import { useUploaderFacade } from './uploader.facade';
+import UiService from '../../store/ui/ui.service';
 
-export const UploaderComponent: React.FC = () => {
+export /**
+ * Uploader component for uploading the images for classification.
+ * @returns Renders the <UploaderComponent />
+ */
+const UploaderComponent: React.FC = () => {
     const onDrop = useCallback(() => { }, []);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-    const { uploadingFilesState, setUploadingFiles, uploadingFileStatus } = useUploadingFilesFacade();
-    const initialState = {
-        mode: 'urls',
-    } as UploaderComponentState;
-    const [state, mutate] = useState<UploaderComponentState>(initialState);
+    const uploaderFacade = useUploaderFacade();
 
-    const onUrlChange = (ev: any, newText?: string): void => {
-        setUploadingFiles(newText!);
+    let _localDeviceComboOption: HTMLElement;
+    const onUrlsChange = (ev: any, newText?: string): void => {
+        uploaderFacade.setUploadingFiles(newText!);
     };
-
-    const isURLMode = () => state.mode === initialState.mode;
     return (
         <Container layout="flexbox">
             <Row>
@@ -28,16 +28,15 @@ export const UploaderComponent: React.FC = () => {
             </Row>
             <Row>
                 <Col>
-                    <Stack horizontal tokens={{ childrenGap: 40 }}>
+                    <Stack horizontal horizontalAlign="space-between" tokens={{ childrenGap: 40 }}>
                         <ChoiceGroup
                             label="Upload Mode"
-                            defaultSelectedKey={state.mode}
+                            defaultSelectedKey={uploaderFacade.state.mode}
                             options={[
                                 {
                                     key: 'files',
                                     iconProps: { iconName: 'OpenFile' },
                                     text: 'Local File',
-                                    disabled: true,
                                 },
                                 {
                                     key: 'urls',
@@ -45,14 +44,33 @@ export const UploaderComponent: React.FC = () => {
                                     text: 'URL',
                                 },
                             ]}
-                            onChange={(evt, option: IChoiceGroupOption | undefined) => mutate((currentState) => ({ ...currentState, mode: option!.key }))}
+                            onChange={(evt, option: IChoiceGroupOption | undefined) => uploaderFacade.setState((currentState) => ({ ...currentState, mode: option!.key }))}
+                            // eslint-disable-next-line no-return-assign
+                            componentRef={(option: any) => _localDeviceComboOption = option!}
                         />
+                        <CompoundButton
+                            primary
+                            style={{ maxWidth: 190, height: 100, marginTop: 25 }}
+                            secondaryText="Upload these images for classification."
+                            disabled={uploaderFacade.state.uploadingFiles.length === 0 || uploaderFacade.state.uploadingFiles.some((file) => file.isUploading)}
+                            onClick={UiService.UploadFiles}
+                        >
+                            Upload
+                        </CompoundButton>
                     </Stack>
-                    <Container fluid layout="flexbox">
-                        {!isURLMode() ? (
+                    <Stack style={{ paddingTop: 15, paddingBottom: 15 }}>
+                        {!uploaderFacade.isComponentURLMode() ? (
                             <div>
                                 <Row>
                                     <Label>Upload images from your device</Label>
+                                    <TeachingBubble
+                                        calloutProps={{ directionalHint: DirectionalHint.bottomCenter }}
+                                        isWide
+                                        target={_localDeviceComboOption!}
+                                        headline="Local file upload is still in development"
+                                    >
+                                        We are sorry for the inconvenience but only classifiying URL images is now supported.
+                                    </TeachingBubble>
                                 </Row>
                                 <Row>
                                     <div
@@ -77,53 +95,44 @@ export const UploaderComponent: React.FC = () => {
                                 </Row>
                             </div>
                         ) : null}
-                        {isURLMode() ? (
+                        {uploaderFacade.isComponentURLMode() ? (
                             <Row>
                                 <div style={{ width: '100%' }}>
                                     <TextField
-                                        onChange={onUrlChange}
+                                        onChange={onUrlsChange}
                                         autoAdjustHeight
                                         label="Image URLs (one on each line)"
                                         multiline
+                                        defaultValue={uploaderFacade.state.urlsText}
                                         resizable={false}
                                     />
                                 </div>
                             </Row>
                         ) : null}
+                    </Stack>
+                    <Container fluid layout="flexbox">
+                        <Stack horizontal style={{ gridGap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
+                            {uploaderFacade.state.uploadingFiles.map((uploadingFile, index) => (
+                                <DocumentCard
+                                    key={uploadingFile.name}
+                                    style={{ cursor: 'auto' }}
+                                >
+                                    <DocumentCardImage height={150} imageFit={ImageFit.cover} imageSrc={uploadingFile.name} />
+                                    <DocumentCardLocation
+                                        location={uploadingFile.name}
+                                        locationHref={uploadingFile.name}
+                                    />
+                                    <ProgressIndicator progressHidden={!uploadingFile.isUploading} />
+                                    <DocumentCardActivity
+                                        activity={uploaderFacade.uploadingFileStatus(uploadingFile)}
+                                        people={[{ name: ExtractHostname(uploadingFile.name), profileImageSrc: '', initials: `${index + 1}` }]}
+                                    />
+                                </DocumentCard>
+                            ))}
+                        </Stack>
                     </Container>
-                    <Stack style={{ paddingTop: 15, paddingBottom: 15 }}>
-                        <CompoundButton
-                            primary
-                            style={{ maxWidth: 190 }}
-                            secondaryText="Upload these images for classification."
-                            disabled={uploadingFilesState.uploadingFiles.length === 0}
-                        >
-                            Upload
-                        </CompoundButton>
-                    </Stack>
-                    <Stack horizontal style={{ gridGap: 10 }}>
-                        {uploadingFilesState.uploadingFiles.map((uploadingFile) => (
-                            <DocumentCard
-                                style={{ cursor: 'auto' }}
-                            >
-                                <DocumentCardImage height={150} imageFit={ImageFit.cover} imageSrc={uploadingFile.name} />
-                                <DocumentCardLocation
-                                    location={uploadingFile.name}
-                                    locationHref={uploadingFile.name}
-                                />
-                                <DocumentCardActivity
-                                    activity={uploadingFileStatus(uploadingFile)}
-                                    people={[{ name: ExtractHostname(uploadingFile.name), profileImageSrc: '' }]}
-                                />
-                            </DocumentCard>
-                        ))}
-                    </Stack>
                 </Col>
             </Row>
         </Container>
     );
 };
-
-export interface UploaderComponentState {
-    mode: string,
-}

@@ -6,7 +6,11 @@ import { routeChange } from '../../App';
 import { URLs } from '../../constants';
 import { PageHeader } from '../shared/page-header.component';
 
-export const HomeComponent: React.FC = () => {
+export /**
+ * The Home component shows a dashboard of the links in the application.
+ * @returns Renders the <HomeComponent />.
+ */
+const HomeComponent: React.FC = () => {
     const cardStyles: IDocumentCardStyles = {
         root: { display: 'inline-block', marginRight: 20, width: 320 },
     };

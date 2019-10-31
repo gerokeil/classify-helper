@@ -4,7 +4,12 @@ import { Container, Row, Col, Visible, Hidden } from '@trendmicro/react-grid-sys
 import Helmet from 'react-helmet';
 import { NavMobileComponent } from '../navigation/nav.component';
 
-export const PageHeader: React.FC<PageHeaderProps> = (props: PageHeaderProps) => (
+export /**
+ * Commong Page headers for all components.
+ * Also has the mobile menu component for small resolutions.
+ * @param {PageHeaderProps} props
+ */
+const PageHeader: React.FC<PageHeaderProps> = (props: PageHeaderProps) => (
     <div>
         <Helmet><title>{props.text}</title></Helmet>
         <Visible md sm xs>
@@ -30,6 +35,12 @@ export const PageHeader: React.FC<PageHeaderProps> = (props: PageHeaderProps) =>
         </Hidden>
     </div>
 );
+
+/**
+ * Props for the {PageHeaderComponent}
+ * @export
+ * @interface PageHeaderProps
+ */
 export interface PageHeaderProps {
     text: string
 }
