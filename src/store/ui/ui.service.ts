@@ -84,7 +84,14 @@ function UploadFiles() {
         }));
       })
       .catch((error: Error) => {
-        uiStore.update((currentState) => ({ ...currentState, error: { id: uuid.v4(), message: `${error.message}. Please add a CORS enable extenstion for your browser.` } }));
+        let { message } = error;
+        if (message.indexOf('401') > -1) {
+          message = `${message}. Please add an authentication token for the API.`;
+        }
+        if (message.indexOf('Network') > -1) {
+          message = `${message}. Please ensure that a CORS everywhere extenstion for your browser is enabled.`;
+        }
+        uiStore.update((currentState) => ({ ...currentState, error: { id: uuid.v4(), message } }));
       });
   });
 }
