@@ -27,5 +27,5 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 
 ###### IMPORTANT: 
-1. Use a CORS enable everywhere extension in the browser you are using or the API calls will fail.
+1. Use a CORS enable everywhere extension in the browser you are using or the API calls will fail. [Chrome](https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?hl=en)/[Firefox](https://addons.mozilla.org/en-US/firefox/addon/cors-everywhere/)
 2. Add the Colabel API Authentication token into [this](https://github.com/mlnj/classify-helper/blob/master/src/common.ts) replacing  `<<TOKEN TOKEN TOKEN>>`.
